@@ -1,0 +1,56 @@
+{
+  "name": "anglemx/audit-bundle",
+  "description": "Audit Bundle to produce automated reports for OS (Ubuntu) and DB (MySQL) privileged access",
+  "type": "symfony-bundle",
+  "keywords": [
+    "angle",
+    "audit",
+    "itgc",
+    "access review"
+  ],
+  "homepage": "https://github.com/Angle/AuditBundle",
+  "license": "MIT",
+  "authors": [
+    {
+      "name": "Edmundo Fuentes",
+      "email": "me@edmundofuentes.com",
+      "homepage": "https://www.edmundofuentes.com",
+      "role": "creator,manager,architect,developer"
+    },
+    {
+      "name": "Alejandro Hernández Guerrero",
+      "email": "me@alexhdz.com",
+      "homepage": "https://www.alexhdz.com",
+      "role": "creator,manager,architect,developer"
+    },
+    {
+      "name": "Angle Consulting",
+      "email": "email@angle.mx",
+      "homepage": "https://www.angle.mx",
+      "role": "owner"
+    }
+  ],
+  "require": {
+    "php": ">=8.1",
+    "symfony/dependency-injection": "^5.4",
+    "symfony/framework-bundle": "^5.4",
+    "doctrine/doctrine-bundle": "^2.8",
+    "doctrine/orm": "^2.14"
+  },
+  "require-dev": {
+    "dms/phpunit-arraysubset-asserts": "^0.2.0",
+    "php-coveralls/php-coveralls": "^2.2",
+    "phpunit/phpunit": "^9.0"
+  },
+  "config": {
+    "sort-packages": true
+  },
+  "autoload": {
+    "psr-4": {
+      "Angle\\AuditBundle\\": ""
+    },
+    "exclude-from-classmap": [
+      "/Tests/"
+    ]
+  }
+}
