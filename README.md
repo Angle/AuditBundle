@@ -24,3 +24,19 @@ return [
 ```bash
 php bin/console angle:audit:____
 ```
+
+
+## Requirements
+Standard Angle symfony application setup
+
+MySQL Database
+Ubuntu 18.04 - 22.04 Operating System
+SwiftMailer
+
+
+
+## TO-DO
+- Ubuntu Utility
+  - Check OS version compatibility
+  - Pull SSH Authorized Keys file
+  - Pull Auth.log file
