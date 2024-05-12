@@ -1,6 +1,6 @@
 <?php
 
-namespace Angle\AuditBundle\Command;
+namespace Angle\AuditBundle\Command\Audit;
 
 use Doctrine\DBAL\ArrayParameterType;
 use Doctrine\DBAL\Connection;
@@ -45,14 +45,13 @@ class DatabaseUsersCommand extends Command
                 InputOption::VALUE_NONE,
                 'Include local users in the report'
             )
-            ->setDescription('Print a Database user audit report')
-            ->setHelp('Print a Database user audit report.');
+            ->setDescription('Audit Report: database user and grants');
     }
 
     protected function execute(InputInterface $input, OutputInterface $output)
     {
         $io = new SymfonyStyle($input, $output);
-        $io->title('Database User Access Review');
+        $io->title($this->getDescription());
 
         $conn = $this->doctrine->getConnection();
         $driver = $conn->getDriver()->getDatabasePlatform()->getName();

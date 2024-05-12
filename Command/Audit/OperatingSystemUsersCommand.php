@@ -1,6 +1,6 @@
 <?php
 
-namespace Angle\AuditBundle\Command;
+namespace Angle\AuditBundle\Command\Audit;
 
 use Doctrine\DBAL\ArrayParameterType;
 use Doctrine\DBAL\Connection;
@@ -16,7 +16,7 @@ use Symfony\Component\Console\Style\SymfonyStyle;
 
 class OperatingSystemUsersCommand extends Command
 {
-    protected static $defaultName = 'angle:audit:operating-system';
+    protected static $defaultName = 'angle:audit:operating-system-users';
 
     const DEBUG = false;
 
@@ -31,14 +31,17 @@ class OperatingSystemUsersCommand extends Command
     protected function configure()
     {
         $this
-            ->setDescription('Print an Operating System user audit report')
-            ->setHelp('Print an Operating System user audit report.');
+            ->setDescription('Audit Report: operating system user list');
     }
 
     protected function execute(InputInterface $input, OutputInterface $output)
     {
         $io = new SymfonyStyle($input, $output);
-        $io->title('Database User Access Review');
+        $io->title($this->getDescription());
+
+        // Use the UbuntuUtility
+        // Iterate through the /home folder of the server, trying to access the different users listed in there
+        // and then look for the .ssh/authorized_keys files
 
         $io->writeln('[End of Report]');
 

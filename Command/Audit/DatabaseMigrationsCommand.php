@@ -1,6 +1,6 @@
 <?php
 
-namespace Angle\AuditBundle\Command;
+namespace Angle\AuditBundle\Command\Audit;
 
 use Doctrine\DBAL\ArrayParameterType;
 use Doctrine\DBAL\Connection;
@@ -39,14 +39,13 @@ class DatabaseMigrationsCommand extends Command
     protected function configure()
     {
         $this
-            ->setDescription('Print a Database Migrations user audit report')
-            ->setHelp('Print a Database Migrations user audit report.');
+            ->setDescription('Audit Report: database migrations executed during the period');
     }
 
     protected function execute(InputInterface $input, OutputInterface $output)
     {
         $io = new SymfonyStyle($input, $output);
-        $io->title('Database Migrations Review');
+        $io->title($this->getDescription());
 
         $conn = $this->doctrine->getConnection();
         $driver = $conn->getDriver()->getDatabasePlatform()->getName();
