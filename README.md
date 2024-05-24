@@ -34,6 +34,7 @@ Ubuntu 18.04 - 22.04 Operating System
 SwiftMailer
 
 
+server-update.sh script should write its updates to `symfony-update.log` on the root dir
 
 ## TO-DO
 - Ubuntu Utility
