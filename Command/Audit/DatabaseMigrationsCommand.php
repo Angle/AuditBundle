@@ -112,6 +112,8 @@ class DatabaseMigrationsCommand extends Command
                 $io->writeln($e->getTraceAsString());
             }
 
+            ReportUtility::printEndTimestamp($io);
+            $io->writeln('[Report Failure]');
             return Command::FAILURE;
         }
         $io->writeln('');
