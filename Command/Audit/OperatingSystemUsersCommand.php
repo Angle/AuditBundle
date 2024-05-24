@@ -2,6 +2,8 @@
 
 namespace Angle\AuditBundle\Command\Audit;
 
+use Angle\AuditBundle\Utility\ReportUtility;
+use Angle\AuditBundle\Utility\UbuntuUtility;
 use Doctrine\DBAL\ArrayParameterType;
 use Doctrine\DBAL\Connection;
 use Doctrine\Persistence\ManagerRegistry;
@@ -38,11 +40,30 @@ class OperatingSystemUsersCommand extends Command
     {
         $io = new SymfonyStyle($input, $output);
         $io->title($this->getDescription());
+        ReportUtility::printStartTimestamp($io);
 
-        // Use the UbuntuUtility
-        // Iterate through the /home folder of the server, trying to access the different users listed in there
-        // and then look for the .ssh/authorized_keys files
+        if (!UbuntuUtility::isSupportedUbuntu()) {
+            $io->writeln('<error>✗ Unsupported Operating System</error>' . PHP_EOL);
 
+            ReportUtility::printEndTimestamp($io);
+            $io->writeln('[Report Failure]');
+            return Command::FAILURE;
+        }
+
+
+        $io->writeln('Looking for SSH AuthorizedKey files in the server...' . PHP_EOL);
+
+        $authorizedKeys = UbuntuUtility::getSSHAuthorizedKeys();
+
+        foreach ($authorizedKeys as $user => $keys) {
+            $io->writeln('<info>OS User: ' . $user . '</info>');
+
+            foreach ($keys as $key) {
+                $io->writeln('- ' . $key);
+            }
+        }
+
+        ReportUtility::printEndTimestamp($io);
         $io->writeln('[End of Report]');
 
         return Command::SUCCESS;
