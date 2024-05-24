@@ -52,7 +52,7 @@ class AuditEmailReportCommand extends Command
             ->setDescription('Execute all audit reports and send the results by email');
     }
 
-    protected function execute(InputInterface $input, OutputInterface $output)
+    protected function execute(InputInterface $input, OutputInterface $output): int
     {
         $io = new SymfonyStyle($input, $output);
         $io->title('Master Audit Process - run all reports and send the results by email');

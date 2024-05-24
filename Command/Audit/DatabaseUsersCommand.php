@@ -48,7 +48,7 @@ class DatabaseUsersCommand extends Command
             ->setDescription('Audit Report: database user and grants');
     }
 
-    protected function execute(InputInterface $input, OutputInterface $output)
+    protected function execute(InputInterface $input, OutputInterface $output): int
     {
         $io = new SymfonyStyle($input, $output);
         $io->title($this->getDescription());

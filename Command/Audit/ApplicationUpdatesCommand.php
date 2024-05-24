@@ -34,7 +34,7 @@ class ApplicationUpdatesCommand extends Command
             ->setDescription('Audit Report: application updates applied during the period');
     }
 
-    protected function execute(InputInterface $input, OutputInterface $output)
+    protected function execute(InputInterface $input, OutputInterface $output): int
     {
         $io = new SymfonyStyle($input, $output);
         $io->title($this->getDescription());

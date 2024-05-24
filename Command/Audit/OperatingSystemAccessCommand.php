@@ -34,7 +34,7 @@ class OperatingSystemAccessCommand extends Command
             ->setDescription('Audit Report: operating system access log review');
     }
 
-    protected function execute(InputInterface $input, OutputInterface $output)
+    protected function execute(InputInterface $input, OutputInterface $output): int
     {
         $io = new SymfonyStyle($input, $output);
         $io->title($this->getDescription());
