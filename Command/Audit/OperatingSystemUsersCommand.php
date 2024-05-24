@@ -59,7 +59,7 @@ class OperatingSystemUsersCommand extends Command
             $io->writeln('<info>OS User: ' . $user . '</info>');
 
             foreach ($keys as $key) {
-                $io->writeln('- ' . $key);
+                $io->writeln('· ' . trim($key));
             }
         }
 

@@ -87,7 +87,7 @@ class ApplicationUpdatesCommand extends Command
                  */
 
                 if (str_starts_with($line, $periodString)) {
-                    $output->writeln('- ' . $line);
+                    $output->writeln('· ' . trim($line));
                     $atLeastOneFound = true;
                 }
             }

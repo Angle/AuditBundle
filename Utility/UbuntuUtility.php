@@ -9,8 +9,8 @@ abstract class UbuntuUtility
     public static function isSupportedUbuntu(): bool
     {
         // check that the distro is Ubuntu
-        $os = @shell_exec('lsb_release -si 2>/dev/null');
-        $ver = @shell_exec('lsb_release -sr 2>/dev/null');
+        $os = trim(@shell_exec('lsb_release -si 2>/dev/null'));
+        $ver = trim(@shell_exec('lsb_release -sr 2>/dev/null'));
 
         if ($os !== 'Ubuntu') {
             return false;
