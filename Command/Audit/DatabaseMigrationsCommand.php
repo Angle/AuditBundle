@@ -2,6 +2,7 @@
 
 namespace Angle\AuditBundle\Command\Audit;
 
+use Angle\AuditBundle\Utility\PeriodUtility;
 use Angle\AuditBundle\Utility\ReportUtility;
 use Doctrine\DBAL\ArrayParameterType;
 use Doctrine\DBAL\Connection;
@@ -54,6 +55,8 @@ class DatabaseMigrationsCommand extends Command
     protected function configure()
     {
         $this
+            ->addArgument('year', InputArgument::REQUIRED, 'Evaluation year (YYYY)')
+            ->addArgument('month', InputArgument::REQUIRED, 'Evaluation month (MM)')
             ->setDescription('Audit Report: database migrations executed during the period');
     }
 
@@ -76,11 +79,51 @@ class DatabaseMigrationsCommand extends Command
         $output->writeln('<info>Doctrine Migrations Storage Table Name:</info> ' . $this->storageConfiguration->getTableName());
         $output->writeln('');
 
-        // Executing the built-in method
+        $year   = intval($input->getArgument('year'));
+        $month  = intval($input->getArgument('month'));
+
+        list($nextYear, $nextMonth) = PeriodUtility::nextMonth($year, $month);
+
+        $firstDayOfEvaluationMonth  = PeriodUtility::calculateStartDate($year, $month);
+        $firstDayOfNextMonth        = PeriodUtility::calculateStartDate($nextYear, $nextMonth);
+
+        $output->writeln('<info>Report Evaluation Period:</info> ' . PeriodUtility::periodStringFromYearAndMonth($year, $month) . PHP_EOL);
+
+
+        // 1. Show only the latest
+        $io->writeln("1. Show migrations applied during the month" . PHP_EOL);
+        try {
+            $stmt = $conn->prepare("SELECT * FROM " . $this->storageConfiguration->getTableName() . " WHERE executed_at >= :fromDate AND executed_at < :toDate;");
+            $stmt->bindValue('fromDate', $firstDayOfEvaluationMonth->format('Y-m-d'));
+            $stmt->bindValue('toDate', $firstDayOfNextMonth->format('Y-m-d'));
+            $rows = $stmt->executeQuery()->fetchAllAssociative();
+
+            if (count($rows) == 0) {
+                $io->writeln('✓ No results');
+            } else {
+                $io->table(array_keys($rows[0]), $rows);
+            }
+        } catch (\Throwable $e) {
+            $io->error('Database query failed, exception raised on executeQuery():' . PHP_EOL . 'Exception:' . PHP_EOL . $e->getMessage());
+
+            if (self::DEBUG) {
+                $io->writeln('');
+                $io->writeln('Trace:');
+                $io->writeln($e->getTraceAsString());
+            }
+
+            return Command::FAILURE;
+        }
+        $io->writeln('');
+
+
+
+
+        // 2. Execute the built-in method
         $cmd = 'doctrine:migrations:list';
         $command = $this->getApplication()->find($cmd);
 
-        $output->writeln(sprintf('Executing built-in command %s (%s)' . PHP_EOL, $command->getName(), $command->getDescription()));
+        $output->writeln(sprintf('2. Executing built-in command %s (%s)' . PHP_EOL, $command->getName(), $command->getDescription()));
 
         $cmdInput = new ArrayInput([]); // no parameters required
         $cmdOutput = new BufferedOutput();
@@ -90,6 +133,8 @@ class DatabaseMigrationsCommand extends Command
 
         // Display the output
         $output->writeln($content);
+
+
 
 
         ReportUtility::printEndTimestamp($io);
