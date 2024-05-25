@@ -227,6 +227,7 @@ class AuditEmailReportCommand extends Command
 
         $io->writeln('');
         $io->writeln('Output buffer has been collected!');
+        $io->writeln('Output length: ' . number_format(strlen($reportBody), 2) . ' chars');
 
         ## PREPARE EMAIL OUTPUT
         // The body of the email will only show the "success / failure" status of the execution of each one
