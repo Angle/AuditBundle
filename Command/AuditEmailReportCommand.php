@@ -245,8 +245,8 @@ class AuditEmailReportCommand extends Command
             ->setSubject($mailTitle)
             ->setFrom($mailFrom)
             ->setBcc($recipients)
-            ->setBody($reportBody, 'text/plain')
-            //->addPart($htmlBody, 'text/html')
+            ->setBody($reportBody, 'text/html')
+            ->addPart($reportBody, 'text/plain')
         ;
 
         // add all attachments to the message

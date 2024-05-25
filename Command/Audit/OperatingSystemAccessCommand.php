@@ -54,8 +54,6 @@ class OperatingSystemAccessCommand extends Command
         $firstDayOfEvaluationMonth  = PeriodUtility::calculateStartDate($year, $month);
         $firstDayOfNextMonth        = PeriodUtility::calculateStartDate($nextYear, $nextMonth);
 
-        $output->writeln($firstDayOfEvaluationMonth->format('Y-m-d H:i:s'));
-
         $output->writeln('<info>Report Evaluation Period:</info> ' . PeriodUtility::periodStringFromYearAndMonth($year, $month) . PHP_EOL);
 
 
@@ -94,6 +92,8 @@ class OperatingSystemAccessCommand extends Command
             }
         }
 
+        $io->writeln('');
+
 
 
         // 2. Attempt to use journalctl
@@ -106,6 +106,8 @@ class OperatingSystemAccessCommand extends Command
         $cmdOutput = trim(@shell_exec($cmd));
         $io->writeln($cmdOutput);
 
+        $io->writeln('');
+
 
 
         // 3. execute "lastlog", this will pull all the users in the system
@@ -113,6 +115,8 @@ class OperatingSystemAccessCommand extends Command
 
         $cmdOutput = trim(@shell_exec('lastlog'));
         $io->writeln($cmdOutput);
+
+        $io->writeln('');
 
 
 

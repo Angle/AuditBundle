@@ -54,14 +54,14 @@ class ApplicationUpdatesCommand extends Command
         $month  = intval($input->getArgument('month'));
         $periodString = PeriodUtility::periodStringFromYearAndMonth($year, $month);
 
-        $output->writeln('<info>Report Evaluation Period:</info> ' . $periodString . PHP_EOL);
+        $output->writeln('<info>Report Evaluation Period:</info> ' . $periodString);
 
 
         // Navigate to the project's root directory (one up from the Symfony installation folder)
         $kernelDir = $this->params->get('kernel.project_dir');
         $logFile = $kernelDir . '/../symfony-update.log';
 
-        $output->writeln('<info>Symfony Update Log File:</info> ' . $logFile);
+        $output->writeln('<info>Symfony Update Log File:</info> ' . $logFile . PHP_EOL);
 
         if (!file_exists($logFile)) {
             $io->writeln('<error>✗ log file not found</error>' . PHP_EOL);
