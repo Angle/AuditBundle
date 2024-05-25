@@ -43,12 +43,15 @@ class AuditEmailReportCommand extends Command
     /** @var ParameterBagInterface $params */
     private $params;
 
-    public function __construct(Swift_Mailer $mailer, ParameterBagInterface $params)
+    private ?string $mailerFrom;
+
+    public function __construct(Swift_Mailer $mailer, ParameterBagInterface $params, string $mailerFrom)
     {
         parent::__construct();
 
         $this->mailer = $mailer;
         $this->params = $params;
+        $this->mailerFrom = $mailerFrom;
     }
 
     /**
@@ -231,7 +234,7 @@ class AuditEmailReportCommand extends Command
         $io->writeln('Preparing email output...');
 
         # Message metadata
-        //$mailFrom = [$mailerFrom => 'System Audit'];
+        $mailFrom = [$this->mailerFrom => $applicationName . '(System Audit)'];
         $mailTitle = sprintf('System Audit Report for %s (%s)', $applicationName, $periodString);
 
         ## Build message object
@@ -240,7 +243,7 @@ class AuditEmailReportCommand extends Command
         $message = (new Swift_Message($mailTitle))
             ->setEncoder($plainEncoder) // Disable Quoted-Printable headers (they mess up HTML)
             ->setSubject($mailTitle)
-            //->setFrom($mailFrom)
+            ->setFrom($mailFrom)
             ->setBcc($recipients)
             ->setBody($reportBody, 'text/plain')
             //->addPart($htmlBody, 'text/html')

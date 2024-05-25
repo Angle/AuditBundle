@@ -18,3 +18,7 @@ services:
   Angle\AuditBundle\Command\Audit\DatabaseMigrationsCommand:
     arguments:
       $storageConfiguration: '@doctrine.migrations.storage.table_storage'
+
+  Angle\AuditBundle\Command\AuditEmailReportCommand:
+    arguments:
+      $mailerForm: '%env(MAILER_FROM)%'

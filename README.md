@@ -1,6 +1,8 @@
 # Angle Audit Bundle
 Audit Bundle for Symfony 5.4+ to produce automated reports for OS (Ubuntu) and DB (MySQL) privileged access
 
+highly opinionated Angle deployment model, built on top of Symfony.
+
 ## Installation
 Install composer dependency:
 
@@ -51,6 +53,10 @@ server-update.sh script should write its updates to `symfony-update.log` on the 
   - Pull SSH Authorized Keys file
   - Pull Auth.log file
 
+# Mailer Configuration
+Uses SwiftMailer (which is now deprecated in Symfony).
+
+An .env variable called `MAILER_FROM` is required to be defined.
 
 # Auth (`sshd`) Configurations
 ### Verify `sshd` log verbosity
