@@ -25,6 +25,15 @@ return [
 php bin/console angle:audit:____
 ```
 
+Available commands:
+
+```
+angle:audit:application-updates
+angle:audit:database-migrations
+angle:audit:database-users
+angle:audit:operating-system-access
+angle:audit:operating-system-users
+```
 
 ## Requirements
 Standard Angle symfony application setup

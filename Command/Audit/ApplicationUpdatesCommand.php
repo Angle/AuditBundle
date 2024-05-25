@@ -99,6 +99,7 @@ class ApplicationUpdatesCommand extends Command
             $io->writeln('✓ No results for the evaluation period');
         }
 
+        $io->writeln('');
 
         ReportUtility::printEndTimestamp($io);
         $io->writeln('[End of Report]');

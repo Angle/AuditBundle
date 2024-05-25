@@ -104,7 +104,7 @@ class DatabaseMigrationsCommand extends Command
                 $io->table(array_keys($rows[0]), $rows);
             }
         } catch (\Throwable $e) {
-            $io->error('Database query failed, exception raised on executeQuery():' . PHP_EOL . 'Exception:' . PHP_EOL . $e->getMessage());
+            $io->error('Database query failed, exception raised on executeQuery():' . PHP_EOL . $e->getMessage());
 
             if (self::DEBUG) {
                 $io->writeln('');
