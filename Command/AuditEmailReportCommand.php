@@ -28,6 +28,7 @@ use Angle\AuditBundle\Command\Audit\DatabaseMigrationsCommand;
 use Angle\AuditBundle\Command\Audit\DatabaseUsersCommand;
 use Angle\AuditBundle\Command\Audit\OperatingSystemAccessCommand;
 use Angle\AuditBundle\Command\Audit\OperatingSystemUsersCommand;
+use Symfony\Component\DependencyInjection\ParameterBag\ParameterBagInterface;
 
 class AuditEmailReportCommand extends Command
 {
@@ -36,11 +37,15 @@ class AuditEmailReportCommand extends Command
     /** @var Swift_Mailer $mailer */
     protected $mailer;
 
-    public function __construct(Swift_Mailer $mailer)
+    /** @var ParameterBagInterface $params */
+    private $params;
+
+    public function __construct(Swift_Mailer $mailer, ParameterBagInterface $params)
     {
         parent::__construct();
 
         $this->mailer = $mailer;
+        $this->params = $params;
     }
 
     /**
@@ -64,7 +69,10 @@ class AuditEmailReportCommand extends Command
 
         // TODO: Get hostname (os)
         // TODO: get OS username (whoami)
+        get_current_user();
+        gethostname();
         // TODO: get symfony environment
+        $this->params->get('kernel.environment');
 
         // TODO: if a "host-title" "title" (something like that) option is passed to the command, we will use that in the Email instead of the hostname.
         // The hostname in AWS usually is something like "ip-10-230-10-4" which is not very useful

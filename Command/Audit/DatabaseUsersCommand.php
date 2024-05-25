@@ -100,6 +100,8 @@ ENDSQL;
                 $io->writeln($e->getTraceAsString());
             }
 
+            $this->printGrantInstructions($io);
+
             ReportUtility::printEndTimestamp($io);
             $io->writeln('[Report Failure]');
             return Command::FAILURE;
@@ -147,8 +149,7 @@ ENDSQL;
                 $io->writeln($e->getTraceAsString());
             }
 
-            $io->writeln('To allow this query, grant the following permission to the app user:');
-            $io->writeln('  GRANT SELECT ON mysql.db, mysql.user, mysql.tables_priv, mysql.columns_priv');
+            $this->printGrantInstructions($io);
 
             ReportUtility::printEndTimestamp($io);
             $io->writeln('[Report Failure]');
@@ -177,8 +178,7 @@ ENDSQL;
                 $io->writeln($e->getTraceAsString());
             }
 
-            $io->writeln('To allow this query, grant the following permission to the app user:');
-            $io->writeln('  GRANT SELECT ON mysql.db, mysql.user, mysql.tables_priv, mysql.columns_priv');
+            $this->printGrantInstructions($io);
 
             ReportUtility::printEndTimestamp($io);
             $io->writeln('[Report Failure]');
@@ -207,8 +207,7 @@ ENDSQL;
                 $io->writeln($e->getTraceAsString());
             }
 
-            $io->writeln('To allow this query, grant the following permission to the app user:');
-            $io->writeln('  GRANT SELECT ON mysql.db, mysql.user, mysql.tables_priv, mysql.columns_priv');
+            $this->printGrantInstructions($io);
 
             ReportUtility::printEndTimestamp($io);
             $io->writeln('[Report Failure]');
@@ -255,8 +254,7 @@ ENDSQL;
                     $io->writeln($e->getTraceAsString());
                 }
 
-                $io->writeln('To allow this query, grant the following permission to the app user:');
-                $io->writeln('  GRANT SELECT ON mysql.db, mysql.user, mysql.tables_priv, mysql.columns_priv');
+                $this->printGrantInstructions($io);
 
                 ReportUtility::printEndTimestamp($io);
                 $io->writeln('[Report Failure]');
@@ -271,5 +269,14 @@ ENDSQL;
         $io->writeln('[End of Report]');
 
         return Command::SUCCESS;
+    }
+
+    private function printGrantInstructions(SymfonyStyle $io): void
+    {
+        $io->writeln('To allow this audit report, grant the following permission to the application user:');
+        $io->writeln("GRANT SELECT ON mysql.db TO '{USER}'@'%';");
+        $io->writeln("GRANT SELECT ON mysql.user TO '{USER}'@'%';");
+        $io->writeln("GRANT SELECT ON mysql.tables_priv TO '{USER}'@'%';");
+        $io->writeln("GRANT SELECT ON mysql.columns_priv TO '{USER}'@'%';");
     }
 }
