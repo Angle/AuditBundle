@@ -71,6 +71,8 @@ class AuditEmailReportCommand extends Command
     {
         $output->writeln('Starting output buffering... all content will be caught and flushed later in the execution, please be patient while the command runs...');
 
+        $output->writeln('Output type: ' . get_class($output));
+
         // CATCH BUFFER! This will be used to later send the same details via email
         ob_start();
 
