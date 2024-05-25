@@ -2,6 +2,7 @@
 
 namespace Angle\AuditBundle\Command;
 
+use Angle\AuditBundle\Extension\ConsoleWithBufferOutput;
 use Angle\AuditBundle\Utility\PeriodUtility;
 use Angle\AuditBundle\Utility\ReportUtility;
 use Angle\Utilities\SlugUtility;
@@ -16,6 +17,7 @@ use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\BufferedOutput;
+use Symfony\Component\Console\Output\ConsoleOutput;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Style\SymfonyStyle;
 
@@ -71,12 +73,9 @@ class AuditEmailReportCommand extends Command
     {
         $output->writeln('Starting output buffering... all content will be caught and flushed later in the execution, please be patient while the command runs...');
 
-        $output->writeln('Output type: ' . get_class($output));
+        $bufferedOutput = new ConsoleWithBufferOutput();
 
-        // CATCH BUFFER! This will be used to later send the same details via email
-        ob_start();
-
-        $io = new SymfonyStyle($input, $output);
+        $io = new SymfonyStyle($input, $bufferedOutput);
         $io->title('Master Audit Process - run all reports and send the results by email');
         ReportUtility::printStartTimestamp($io);
 
@@ -223,9 +222,8 @@ class AuditEmailReportCommand extends Command
         ReportUtility::printEndTimestamp($io);
         $io->writeln('[End of Report]');
 
-        // Extract the buffer
-        $reportBody = ob_get_contents();
-        ob_end_flush();
+        // Extract the buffer we have so far
+        $reportBody = $bufferedOutput->fetch();
 
         $io->writeln('');
         $io->writeln('Output buffer has been collected!');
@@ -248,8 +246,8 @@ class AuditEmailReportCommand extends Command
             ->setSubject($mailTitle)
             ->setFrom($mailFrom)
             ->setBcc($recipients)
-            ->setBody($reportBody, 'text/html')
-            ->addPart($reportBody, 'text/plain')
+            ->setBody($reportBody, 'text/plain')
+            //->addPart($reportBody, 'text/html')
         ;
 
         // add all attachments to the message
