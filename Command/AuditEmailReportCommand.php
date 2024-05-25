@@ -111,18 +111,18 @@ class AuditEmailReportCommand extends Command
         $periodString = PeriodUtility::periodStringFromYearAndMonth($year, $month);
 
 
-        $output->writeln(sprintf('<info>Application:</info> %s [%s]', $applicationName, $applicationEnvironment));
-        $output->writeln('<info>Report Evaluation Period:</info> ' . $periodString);
-        $output->writeln('<info>Recipients:</info>');
+        $io->writeln(sprintf('<info>Application:</info> %s [%s]', $applicationName, $applicationEnvironment));
+        $io->writeln('<info>Report Evaluation Period:</info> ' . $periodString);
+        $io->writeln('<info>Recipients:</info>');
         foreach ($recipients as $r) {
-            $output->writeln('· ' . $r);
+            $io->writeln('· ' . $r);
         }
 
-        $output->writeln('');
+        $io->writeln('');
 
 
         // Run each one of the Audit Commands, and generate a .txt report from them
-        $output->writeln('== AUDIT REPORTS ==');
+        $io->writeln('== AUDIT REPORTS ==');
 
         $commands = [
             [

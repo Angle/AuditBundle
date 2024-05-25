@@ -9,7 +9,7 @@ use Symfony\Component\Console\Terminal;
 
 class CustomSymfonyStyle extends SymfonyStyle
 {
-    const MAX_LINE_LENGTH = 200;
+    const MAX_LINE_LENGTH = 240;
 
     private int $lineLength;
 
