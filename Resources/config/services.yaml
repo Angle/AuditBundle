@@ -21,4 +21,4 @@ services:
 
   Angle\AuditBundle\Command\AuditEmailReportCommand:
     arguments:
-      $mailerForm: '%env(MAILER_FROM)%'
+      $mailerFrom: '%env(MAILER_FROM)%'
