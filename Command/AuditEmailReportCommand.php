@@ -248,7 +248,7 @@ class AuditEmailReportCommand extends Command
 
         // add all attachments to the message
         foreach ($attachments as $a) {
-            $attachment = new Swift_Attachment(fread($a['resource'], filesize($a['resource'])), $a['filename'], 'text/plain');
+            $attachment = new Swift_Attachment(stream_get_contents($a['resource']), $a['filename'], 'text/plain');
             $message->attach($attachment);
         }
 
