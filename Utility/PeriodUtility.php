@@ -28,6 +28,20 @@ abstract class PeriodUtility
     /**
      * @param int $year
      * @param int $month
+     * @return array
+     */
+    public static function previousMonth(int $year, int $month): array
+    {
+        if ($month <= 1) {
+            return [$year-1, 12];
+        }
+
+        return [$year, $month-1];
+    }
+
+    /**
+     * @param int $year
+     * @param int $month
      * @return DateTime
      */
     public static function calculateStartDate(int $year, int $month): DateTime

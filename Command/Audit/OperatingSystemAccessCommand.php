@@ -77,15 +77,10 @@ class OperatingSystemAccessCommand extends Command
                     // sample date in the sshd.log
                     // 2024-05-25T01:42:53.571228+00:00 hostname sshd[1094324]: User child is on pid 1094379
 
-                    $lineParts = explode(" ", $line, 2);
-                    $timestampRaw = $lineParts[0];
-                    $timestamp = DateTime::createFromFormat(DateTime::RFC3339, $timestampRaw);
+                    // we will not try to parse the timestamp.. instead, we will simply compare the first few
+                    // characters of the string ;)
 
-                    if ($timestamp === false) {
-                        continue;
-                    }
-
-                    if ($timestamp >= $firstDayOfEvaluationMonth && $timestamp < $firstDayOfNextMonth) {
+                    if (str_starts_with($line, $periodString)) {
                         $output->writeln('· ' . trim($line));
                         $atLeastOneFound = true;
                     }

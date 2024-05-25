@@ -86,6 +86,9 @@ class ApplicationUpdatesCommand extends Command
                  * Thus, we can simply filter by the first part of the string to pull the month we want
                  */
 
+                // we will not try to parse the timestamp.. instead, we will simply compare the first few
+                // characters of the string ;)
+
                 if (str_starts_with($line, $periodString)) {
                     $output->writeln('· ' . trim($line));
                     $atLeastOneFound = true;

@@ -58,11 +58,11 @@ class DatabaseUsersCommand extends Command
         }
 
         $output->writeln('<info>Driver:</info> ' . $driver);
-        $output->writeln('<info>Database Name:</info> ' . $conn->getDatabase());
+        $output->writeln('<info>Database Name:</info> ' . $conn->getDatabase() . PHP_EOL);
 
 
         // 1. Display all users
-        $io->writeln("1. User list with their system-wide grants:");
+        $io->writeln(">> 1. User list with their system-wide grants:");
         try {
             $sql = <<<ENDSQL
 SELECT
@@ -112,7 +112,7 @@ ENDSQL;
 
 
         // 2. Display per database grants
-        $io->writeln("2. Special grants per-Database:");
+        $io->writeln(">> 2. Special grants per-Database:");
         try {
             $sql = <<<ENDSQL
 SELECT
@@ -159,7 +159,7 @@ ENDSQL;
 
 
         // 3. Display per table grants
-        $io->writeln("3. Special grants per-Table:");
+        $io->writeln(">> 3. Special grants per-Table:");
         try {
             $stmt = $conn->prepare("SELECT * FROM mysql.tables_priv;");
             $rows = $stmt->executeQuery()->fetchAllAssociative();
@@ -188,7 +188,7 @@ ENDSQL;
 
 
         // 4. Display per column grants
-        $io->writeln("4. Special grants per-Column:");
+        $io->writeln(">> 4. Special grants per-Column:");
         try {
             $stmt = $conn->prepare("SELECT * FROM mysql.columns_priv;");
             $rows = $stmt->executeQuery()->fetchAllAssociative();
@@ -219,7 +219,7 @@ ENDSQL;
 
         /*
         // 5. Grants per User
-        $io->writeln("5. Grants per User:");
+        $io->writeln(">> 5. Grants per User:");
 
         if (empty($userList)) {
             $io->writeln('✓ No results');
