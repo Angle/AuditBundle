@@ -68,16 +68,4 @@ abstract class UbuntuUtility
 
         return $keys;
     }
-
-    // TODO: User access log processing (/etc/auth ??)
-    public static function getAuthLog(): ?array
-    {
-        // look in to the /etc/auth.log (or /var/auth.log ? )
-
-        // filter by dates
-
-        // return an array with one element per matched row
-
-        return null;
-    }
 }

@@ -2,6 +2,7 @@
 
 namespace Angle\AuditBundle\Command\Audit;
 
+use Angle\AuditBundle\Utility\ReportUtility;
 use Doctrine\DBAL\ArrayParameterType;
 use Doctrine\DBAL\Connection;
 use Doctrine\Persistence\ManagerRegistry;
@@ -52,6 +53,7 @@ class DatabaseUsersCommand extends Command
     {
         $io = new SymfonyStyle($input, $output);
         $io->title($this->getDescription());
+        ReportUtility::printStartTimestamp($io);
 
         $conn = $this->doctrine->getConnection();
         $driver = $conn->getDriver()->getDatabasePlatform()->getName();
@@ -335,6 +337,7 @@ ENDSQL;
         $io->writeln('');
 
 
+        ReportUtility::printEndTimestamp($io);
         $io->writeln('[End of Report]');
 
         return Command::SUCCESS;

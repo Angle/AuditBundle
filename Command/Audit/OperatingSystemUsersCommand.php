@@ -56,11 +56,13 @@ class OperatingSystemUsersCommand extends Command
         $authorizedKeys = UbuntuUtility::getSSHAuthorizedKeys();
 
         foreach ($authorizedKeys as $user => $keys) {
-            $io->writeln('<info>OS User: ' . $user . '</info>');
+            $io->writeln('>> <info>OS User: ' . $user . '</info> <<');
 
             foreach ($keys as $key) {
-                $io->writeln('· ' . trim($key));
+                $io->writeln(trim($key));
             }
+
+            $io->writeln('');
         }
 
         ReportUtility::printEndTimestamp($io);

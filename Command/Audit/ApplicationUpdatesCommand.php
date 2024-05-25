@@ -96,7 +96,7 @@ class ApplicationUpdatesCommand extends Command
         }
 
         if (!$atLeastOneFound) {
-            $io->writeln('✓ No results');
+            $io->writeln('✓ No results for the evaluation period');
         }
 
 
