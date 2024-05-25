@@ -71,7 +71,7 @@ class AuditEmailReportCommand extends Command
 
     protected function execute(InputInterface $input, OutputInterface $output): int
     {
-        $output->writeln('Starting output buffering... all content will be caught and flushed later in the execution, please be patient while the command runs...');
+        $output->writeln('Switching output buffering...');
 
         $bufferedOutput = new ConsoleWithBufferOutput();
 
@@ -227,7 +227,7 @@ class AuditEmailReportCommand extends Command
 
         $io->writeln('');
         $io->writeln('Output buffer has been collected!');
-        $io->writeln('Output length: ' . number_format(strlen($reportBody), 2) . ' chars');
+        $io->writeln('Output length: ' . number_format(strlen($reportBody)) . ' chars');
 
         ## PREPARE EMAIL OUTPUT
         // The body of the email will only show the "success / failure" status of the execution of each one
