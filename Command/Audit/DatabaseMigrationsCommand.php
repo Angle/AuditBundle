@@ -18,6 +18,8 @@ use Symfony\Component\Console\Output\BufferedOutput;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Style\SymfonyStyle;
 
+use Angle\AuditBundle\Extension\CustomSymfonyStyle;
+
 use Symfony\Component\DependencyInjection\ParameterBag\ParameterBagInterface;
 
 use Doctrine\Migrations\Metadata\Storage\TableMetadataStorageConfiguration;
@@ -62,7 +64,7 @@ class DatabaseMigrationsCommand extends Command
 
     protected function execute(InputInterface $input, OutputInterface $output): int
     {
-        $io = new SymfonyStyle($input, $output);
+        $io = new CustomSymfonyStyle($input, $output);
         $io->title($this->getDescription());
         ReportUtility::printStartTimestamp($io);
 

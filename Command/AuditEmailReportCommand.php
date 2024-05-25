@@ -2,7 +2,6 @@
 
 namespace Angle\AuditBundle\Command;
 
-use Angle\AuditBundle\Extension\ConsoleWithBufferOutput;
 use Angle\AuditBundle\Utility\PeriodUtility;
 use Angle\AuditBundle\Utility\ReportUtility;
 use Angle\Utilities\SlugUtility;
@@ -20,6 +19,8 @@ use Symfony\Component\Console\Output\BufferedOutput;
 use Symfony\Component\Console\Output\ConsoleOutput;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Style\SymfonyStyle;
+
+use Angle\AuditBundle\Extension\CustomSymfonyStyle;
 
 use Swift_Mailer as Swift_Mailer;
 use Swift_Message as Swift_Message;
@@ -73,9 +74,9 @@ class AuditEmailReportCommand extends Command
     {
         $output->writeln('Switching output buffering...');
 
-        $bufferedOutput = new ConsoleWithBufferOutput();
+        $bufferedOutput = new BufferedOutput();
 
-        $io = new SymfonyStyle($input, $bufferedOutput);
+        $io = new CustomSymfonyStyle($input, $bufferedOutput);
         $io->title('Master Audit Process - run all reports and send the results by email');
         ReportUtility::printStartTimestamp($io);
 
@@ -222,8 +223,12 @@ class AuditEmailReportCommand extends Command
         ReportUtility::printEndTimestamp($io);
         $io->writeln('[End of Report]');
 
-        // Extract the buffer we have so far
+        // Extract the buffer
         $reportBody = $bufferedOutput->fetch();
+
+        // switch back to the default output
+        $io = new CustomSymfonyStyle($input, $output);
+        $io->writeln($reportBody);
 
         $io->writeln('');
         $io->writeln('Output buffer has been collected!');

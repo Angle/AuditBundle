@@ -17,6 +17,8 @@ use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Style\SymfonyStyle;
 use Symfony\Component\DependencyInjection\ParameterBag\ParameterBagInterface;
 
+use Angle\AuditBundle\Extension\CustomSymfonyStyle;
+
 class ApplicationUpdatesCommand extends Command
 {
     protected static $defaultName = 'angle:audit:application-updates';
@@ -46,7 +48,7 @@ class ApplicationUpdatesCommand extends Command
 
     protected function execute(InputInterface $input, OutputInterface $output): int
     {
-        $io = new SymfonyStyle($input, $output);
+        $io = new CustomSymfonyStyle($input, $output);
         $io->title($this->getDescription());
         ReportUtility::printStartTimestamp($io);
 
