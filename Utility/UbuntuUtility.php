@@ -2,38 +2,70 @@
 
 namespace Angle\AuditBundle\Utility;
 
+use DirectoryIterator;
+
 abstract class UbuntuUtility
 {
-
-    // TODO: Check the current OS version (lsb_release)
-    public function isSupportedUbuntu(): bool
+    public static function isSupportedUbuntu(): bool
     {
         // check that the distro is Ubuntu
+        $os = trim(@shell_exec('lsb_release -si 2>/dev/null'));
+        $ver = trim(@shell_exec('lsb_release -sr 2>/dev/null'));
+
+        if ($os !== 'Ubuntu') {
+            return false;
+        }
 
         // check that the version is within 18.04 - 22.04
+        if (!in_array($ver, ['18.04', '20.04', '22.04'])) {
+            return false;
+        }
 
-        return false;
+        return true;
     }
 
-    // TODO: SSH Authorized Keys processing
-    public function getSSHAuthorizedKeys(): ?array
+
+    /**
+     * Return an array with: [$user => $authorized_keys_content[]]
+     * @return array|null
+     */
+    public static function getSSHAuthorizedKeys(): ?array
     {
-        // look into /home/* to find the correct .ssh/authorized_keys folder
+        if (!self::isSupportedUbuntu()) {
+            return null;
+        }
 
-        // return an array with: [$user => $authorized_keys_content]
+        $keys = [];
 
-        return null;
-    }
+        $dir = new DirectoryIterator('/home/');
+        foreach ($dir as $fileinfo) {
+            /** @var \DirectoryIterator $fileinfo */
+            if (!$fileinfo->isDot()) {
+                if ($fileinfo->isDir() && $fileinfo->isReadable()) {
+                    // we are now in the $user home directory!
+                    $user = $fileinfo->getBasename();
+                    $lines = [];
 
-    // TODO: User access log processing (/etc/auth ??)
-    public function getAuthLog(): ?array
-    {
-        // look in to the /etc/auth.log (or /var/auth.log ? )
+                    // we will check if the SSH AuthorizedKeys file exists
+                    $authorizedKeysFile = $fileinfo->getRealPath() . '/.ssh/authorized_keys';
+                    if (file_exists($authorizedKeysFile)) {
 
-        // filter by dates
+                        // file found, read all contents into an array
+                        // Open the file
+                        $fp = @fopen($authorizedKeysFile, 'r');
 
-        // return an array with one element per matched row
+                        // Add each line to an array
+                        if ($fp) {
+                            $lines = explode("\n", fread($fp, filesize($authorizedKeysFile)));
+                            fclose($fp);
+                        }
+                    }
 
-        return null;
+                    $keys[$user] = $lines;
+                }
+            }
+        }
+
+        return $keys;
     }
 }

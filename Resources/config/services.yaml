@@ -13,3 +13,12 @@ services:
 
   Angle\AuditBundle\Command\:
     resource: '../../Command/'
+
+
+  Angle\AuditBundle\Command\Audit\DatabaseMigrationsCommand:
+    arguments:
+      $storageConfiguration: '@doctrine.migrations.storage.table_storage'
+
+  Angle\AuditBundle\Command\AuditEmailReportCommand:
+    arguments:
+      $mailerFrom: '%env(MAILER_FROM)%'

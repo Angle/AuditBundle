@@ -2,6 +2,8 @@
 
 namespace Angle\AuditBundle\Command\Audit;
 
+use Angle\AuditBundle\Utility\ReportUtility;
+use Angle\AuditBundle\Utility\UbuntuUtility;
 use Doctrine\DBAL\ArrayParameterType;
 use Doctrine\DBAL\Connection;
 use Doctrine\Persistence\ManagerRegistry;
@@ -13,6 +15,8 @@ use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Style\SymfonyStyle;
+
+use Angle\AuditBundle\Extension\CustomSymfonyStyle;
 
 class OperatingSystemUsersCommand extends Command
 {
@@ -34,15 +38,36 @@ class OperatingSystemUsersCommand extends Command
             ->setDescription('Audit Report: operating system user list');
     }
 
-    protected function execute(InputInterface $input, OutputInterface $output)
+    protected function execute(InputInterface $input, OutputInterface $output): int
     {
-        $io = new SymfonyStyle($input, $output);
+        $io = new CustomSymfonyStyle($input, $output);
         $io->title($this->getDescription());
+        ReportUtility::printStartTimestamp($io);
 
-        // Use the UbuntuUtility
-        // Iterate through the /home folder of the server, trying to access the different users listed in there
-        // and then look for the .ssh/authorized_keys files
+        if (!UbuntuUtility::isSupportedUbuntu()) {
+            $io->writeln('<error>✗ Unsupported Operating System</error>' . PHP_EOL);
 
+            ReportUtility::printEndTimestamp($io);
+            $io->writeln('[Report Failure]');
+            return Command::FAILURE;
+        }
+
+
+        $io->writeln('Looking for SSH AuthorizedKey files in the server...' . PHP_EOL);
+
+        $authorizedKeys = UbuntuUtility::getSSHAuthorizedKeys();
+
+        foreach ($authorizedKeys as $user => $keys) {
+            $io->writeln('>> <info>OS User: ' . $user . '</info> <<' . PHP_EOL);
+
+            foreach ($keys as $key) {
+                $io->writeln(trim($key));
+            }
+
+            $io->writeln('');
+        }
+
+        ReportUtility::printEndTimestamp($io);
         $io->writeln('[End of Report]');
 
         return Command::SUCCESS;

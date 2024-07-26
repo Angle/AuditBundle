@@ -32,9 +32,11 @@
   ],
   "require": {
     "php": ">=8.1",
+    "anglemx/php-utilities": "^1.0",
     "symfony/dependency-injection": "^5.4",
     "symfony/framework-bundle": "^5.4",
     "doctrine/doctrine-bundle": "^2.8",
+    "doctrine/doctrine-migrations-bundle": "^3.2.4",
     "symfony/swiftmailer-bundle": "^3.1",
     "doctrine/orm": "^2.14"
   },

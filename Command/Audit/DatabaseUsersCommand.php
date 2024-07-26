@@ -2,6 +2,7 @@
 
 namespace Angle\AuditBundle\Command\Audit;
 
+use Angle\AuditBundle\Utility\ReportUtility;
 use Doctrine\DBAL\ArrayParameterType;
 use Doctrine\DBAL\Connection;
 use Doctrine\Persistence\ManagerRegistry;
@@ -14,9 +15,11 @@ use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Style\SymfonyStyle;
 
+use Angle\AuditBundle\Extension\CustomSymfonyStyle;
+
 class DatabaseUsersCommand extends Command
 {
-    protected static $defaultName = 'angle:audit:database';
+    protected static $defaultName = 'angle:audit:database-users';
 
     /** @var ManagerRegistry $doctrine */
     private $doctrine;
@@ -39,19 +42,14 @@ class DatabaseUsersCommand extends Command
     protected function configure()
     {
         $this
-            ->addOption(
-                'include-local-users',
-                'a',
-                InputOption::VALUE_NONE,
-                'Include local users in the report'
-            )
             ->setDescription('Audit Report: database user and grants');
     }
 
-    protected function execute(InputInterface $input, OutputInterface $output)
+    protected function execute(InputInterface $input, OutputInterface $output): int
     {
-        $io = new SymfonyStyle($input, $output);
+        $io = new CustomSymfonyStyle($input, $output);
         $io->title($this->getDescription());
+        ReportUtility::printStartTimestamp($io);
 
         $conn = $this->doctrine->getConnection();
         $driver = $conn->getDriver()->getDatabasePlatform()->getName();
@@ -62,131 +60,41 @@ class DatabaseUsersCommand extends Command
         }
 
         $output->writeln('<info>Driver:</info> ' . $driver);
-        $output->writeln('<info>Database Name:</info> ' . $conn->getDatabase());
-
-        $includeLocalUsers = $input->getOption('include-local-users');
-
-        if ($includeLocalUsers) {
-            $io->writeln('<info>Report Scope:</info> Include ALL users (%)');
-        } else {
-            $io->writeln('<info>Report Scope:</info> Only Remote users (exclude localhost and 127.0.0.1)');
-        }
-
-        $output->writeln('');
-
-
-        $userList = [];
+        $output->writeln('<info>Database Name:</info> ' . $conn->getDatabase() . PHP_EOL);
 
 
         // 1. Display all users
-        $io->writeln("1. User list with their system-wide grants:");
+        $io->writeln(">> 1. User list with their system-wide grants:");
         try {
             $sql = <<<ENDSQL
 SELECT
-    Host, User,
-    Select_priv,
-    Insert_priv,
-    Update_priv,
-    Delete_priv,
-    Create_priv,
-    Drop_priv,
-    Reload_priv,
-    Shutdown_priv,
-    Process_priv,
-    File_priv,
-    Grant_priv,
-    References_priv,
-    Index_priv,
-    Alter_priv,
-    Show_db_priv,
-    Super_priv,
-    Create_tmp_table_priv,
-    Lock_tables_priv,
-    Execute_priv,
-    Repl_slave_priv,
-    Repl_client_priv,
-    Create_view_priv,
-    Show_view_priv,
-    Create_routine_priv,
-    Alter_routine_priv,
-    Create_user_priv,
-    Create_role_priv,
-    Drop_role_priv,
-    Event_priv,
-    Trigger_priv,
-    Create_tablespace_priv,
-    plugin,
-    account_locked
+Host,
+User,
+Select_priv as `Select`,
+Insert_priv as `Insert`,
+Update_priv as `Update`,
+Delete_priv as `Delete`,
+Create_priv as `Create`,
+Drop_priv as `Drop`,
+Alter_priv as `Alter`,
+Grant_priv as `Grant`,
+Super_priv as `Super`,
+plugin as `auth_plugin`,
+account_locked
 FROM mysql.user
--- WHERE host NOT IN ('127.0.0.1', 'localhost');
 ENDSQL;
 
             $stmt = $conn->prepare($sql);
             $users = $stmt->executeQuery()->fetchAllAssociative();
 
             if (count($users) == 0) {
-                $io->writeln('✓ No results');
+                $io->writeln('? No results');
             } else {
-
-                foreach ($users as $u) {
-                    if ((in_array($u['Host'], ['127.0.0.1', 'localhost']))) {
-                        if (!$includeLocalUsers) {
-                            continue;
-                        }
-                    }
-
-                    $userList[] = ['Host' => $u['Host'], 'User' => $u['User']];
-                }
-
-
-
-                // First print a simple user table
-                $io->writeln("> Complete User list, including local and remote users:");
-                $h = ['Host', 'User', 'Auth Plugin', 'Locked'];
-                $r = [];
-                foreach ($users as $u) {
-                    $r[] = [
-                        'Host' => $u['Host'],
-                        'User' => $u['User'],
-                        'Auth Plugin' => $u['plugin'],
-                        'Locked' => $u['account_locked'],
-                    ];
-                }
-                $io->table($h, $r);
-
-                if (empty($userList)) {
-                    $io->writeln('✓ No detailed results after limiting report scope');
-                }
-
-                // option A: write a narrow table PER user
-                $h = ['Grant', 'Value'];
-                foreach ($users as $u) {
-                    // Skip the user if it's not in the list
-                    $found = false;
-                    foreach ($userList as $ul) {
-                        if ($u['User'] == $ul['User']) {
-                            $found = true;
-                            break;
-                        }
-                    }
-                    if (!$found) continue;
-
-                    $io->writeln(sprintf("> %s@%s system-wide grants:", $u['User'], $u['Host']));
-                    $r = [];
-                    foreach ($u as $k => $v) {
-                        if (in_array($k, ['Host', 'User', 'plugin', 'account_locked'], true)) continue;
-                        $r[] = [$k, $v];
-                    }
-                    $io->table($h, $r);
-                }
-
-                /*
-                // option B: write a single long table
                 $io->table(array_keys($users[0]), $users);
-                */
             }
+
         } catch (\Throwable $e) {
-            $io->error('Database query failed, exception raised on executeQuery():' . PHP_EOL . 'Exception:' . PHP_EOL . $e->getMessage());
+            $io->error('Database query failed, exception raised on executeQuery():' . PHP_EOL . $e->getMessage());
 
             if (self::DEBUG) {
                 $io->writeln('');
@@ -194,33 +102,38 @@ ENDSQL;
                 $io->writeln($e->getTraceAsString());
             }
 
+            $this->printGrantInstructions($io);
+
+            ReportUtility::printEndTimestamp($io);
+            $io->writeln('[Report Failure]');
             return Command::FAILURE;
         }
+
         $io->writeln('');
 
-        // Debug UserList
-        //$io->table(['Host', 'User'], $userList);
-
-        $userListFlat = '';
-        foreach ($userList as $u) {
-            $userListFlat .= $conn->quote($u['User']) . ',';
-        }
-        $userListFlat = rtrim($userListFlat, ',');
-
-        // Debug "flat" UserList
-        //$io->writeln('Flat user list: ' . $userListFlat);
-
-        if (empty($userList)) {
-            $io->writeln('! No valid users were found, ending report now.');
-            $io->writeln('[End of Report]');
-            return Command::SUCCESS;
-        }
 
 
         // 2. Display per database grants
-        $io->writeln("2. Special grants per-Database:");
+        $io->writeln(">> 2. Special grants per-Database:");
         try {
-            $stmt = $conn->prepare("SELECT * FROM mysql.db WHERE user IN ($userListFlat);");
+            $sql = <<<ENDSQL
+SELECT
+Host,
+User,
+Db,
+Select_priv as `Select`,
+Insert_priv as `Insert`,
+Update_priv as `Update`,
+Delete_priv as `Delete`,
+Create_priv as `Create`,
+Drop_priv as `Drop`,
+Alter_priv as `Alter`,
+Grant_priv as `Grant`
+FROM mysql.db WHERE Db = :database
+ENDSQL;
+
+            $stmt = $conn->prepare($sql);
+            $stmt->bindValue('database', $conn->getDatabase());
             $rows = $stmt->executeQuery()->fetchAllAssociative();
 
             if (count($rows) == 0) {
@@ -228,8 +141,9 @@ ENDSQL;
             } else {
                 $io->table(array_keys($rows[0]), $rows);
             }
+
         } catch (\Throwable $e) {
-            $io->error('Database query failed, exception raised on executeQuery():' . PHP_EOL . 'Exception:' . PHP_EOL . $e->getMessage());
+            $io->error('Database query failed, exception raised on executeQuery():' . PHP_EOL . $e->getMessage());
 
             if (self::DEBUG) {
                 $io->writeln('');
@@ -237,15 +151,19 @@ ENDSQL;
                 $io->writeln($e->getTraceAsString());
             }
 
+            $this->printGrantInstructions($io);
+
+            ReportUtility::printEndTimestamp($io);
+            $io->writeln('[Report Failure]');
             return Command::FAILURE;
         }
         $io->writeln('');
 
 
         // 3. Display per table grants
-        $io->writeln("3. Special grants per-Table:");
+        $io->writeln(">> 3. Special grants per-Table:");
         try {
-            $stmt = $conn->prepare("SELECT * FROM mysql.tables_priv WHERE user IN ($userListFlat);");
+            $stmt = $conn->prepare("SELECT * FROM mysql.tables_priv;");
             $rows = $stmt->executeQuery()->fetchAllAssociative();
 
             if (count($rows) == 0) {
@@ -254,7 +172,7 @@ ENDSQL;
                 $io->table(array_keys($rows[0]), $rows);
             }
         } catch (\Throwable $e) {
-            $io->error('Database query failed, exception raised on executeQuery():' . PHP_EOL . 'Exception:' . PHP_EOL . $e->getMessage());
+            $io->error('Database query failed, exception raised on executeQuery():' . PHP_EOL . $e->getMessage());
 
             if (self::DEBUG) {
                 $io->writeln('');
@@ -262,15 +180,19 @@ ENDSQL;
                 $io->writeln($e->getTraceAsString());
             }
 
+            $this->printGrantInstructions($io);
+
+            ReportUtility::printEndTimestamp($io);
+            $io->writeln('[Report Failure]');
             return Command::FAILURE;
         }
         $io->writeln('');
 
 
         // 4. Display per column grants
-        $io->writeln("4. Special grants per-Column:");
+        $io->writeln(">> 4. Special grants per-Column:");
         try {
-            $stmt = $conn->prepare("SELECT * FROM mysql.columns_priv WHERE user IN ($userListFlat);");
+            $stmt = $conn->prepare("SELECT * FROM mysql.columns_priv;");
             $rows = $stmt->executeQuery()->fetchAllAssociative();
 
             if (count($rows) == 0) {
@@ -279,7 +201,7 @@ ENDSQL;
                 $io->table(array_keys($rows[0]), $rows);
             }
         } catch (\Throwable $e) {
-            $io->error('Database query failed, exception raised on executeQuery():' . PHP_EOL . 'Exception:' . PHP_EOL . $e->getMessage());
+            $io->error('Database query failed, exception raised on executeQuery():' . PHP_EOL . $e->getMessage());
 
             if (self::DEBUG) {
                 $io->writeln('');
@@ -287,14 +209,19 @@ ENDSQL;
                 $io->writeln($e->getTraceAsString());
             }
 
+            $this->printGrantInstructions($io);
+
+            ReportUtility::printEndTimestamp($io);
+            $io->writeln('[Report Failure]');
             return Command::FAILURE;
         }
         $io->writeln('');
 
 
 
+        /*
         // 5. Grants per User
-        $io->writeln("5. Grants per User:");
+        $io->writeln(">> 5. Grants per User:");
 
         if (empty($userList)) {
             $io->writeln('✓ No results');
@@ -321,7 +248,7 @@ ENDSQL;
                     }
                 }
             } catch (\Throwable $e) {
-                $io->error('Database query failed, exception raised on executeQuery():' . PHP_EOL . 'Exception:' . PHP_EOL . $e->getMessage());
+                $io->error('Database query failed, exception raised on executeQuery():' . PHP_EOL . $e->getMessage());
 
                 if (self::DEBUG) {
                     $io->writeln('');
@@ -329,14 +256,29 @@ ENDSQL;
                     $io->writeln($e->getTraceAsString());
                 }
 
+                $this->printGrantInstructions($io);
+
+                ReportUtility::printEndTimestamp($io);
+                $io->writeln('[Report Failure]');
                 return Command::FAILURE;
             }
         } // endfor: Users
         $io->writeln('');
+        */
 
 
+        ReportUtility::printEndTimestamp($io);
         $io->writeln('[End of Report]');
 
         return Command::SUCCESS;
+    }
+
+    private function printGrantInstructions(SymfonyStyle $io): void
+    {
+        $io->writeln('To allow this audit report, grant the following permission to the application user:');
+        $io->writeln("GRANT SELECT ON mysql.db TO '{USER}'@'%';");
+        $io->writeln("GRANT SELECT ON mysql.user TO '{USER}'@'%';");
+        $io->writeln("GRANT SELECT ON mysql.tables_priv TO '{USER}'@'%';");
+        $io->writeln("GRANT SELECT ON mysql.columns_priv TO '{USER}'@'%';");
     }
 }
