@@ -33,6 +33,32 @@ MySQL Database
 Ubuntu 18.04 - 22.04 Operating System
 SwiftMailer
 
+Application is installed in `/var/www/`
+
+
+### Server-update.sh
+
+This will write to a file called `symfony-update.log` at the root of the project, where `server-update.sh` is run.
+
+Verify that the following lines are included in your `server-update.sh` script:
+
+Before the server update runs:
+```bash
+echo "$(date '+%Y-%m-%d %H:%M:%S') $(whoami) - started server-update..." >> ./symfony-update.log
+echo "$(date '+%Y-%m-%d %H:%M:%S') $(whoami) - current git branch: $(git rev-parse --abbrev-ref HEAD 2>&1)" >> ./symfony-update.log
+echo "$(date '+%Y-%m-%d %H:%M:%S') $(whoami) - current git tag:    $(git describe --tags --exact-match 2>&1)" >> ./symfony-update.log
+echo "$(date '+%Y-%m-%d %H:%M:%S') $(whoami) - current git commit: $(head -n 1 ./.git/FETCH_HEAD | cut -c1-8)" >> ./symfony-update.log
+```
+
+After the server-update.sh completes:
+```bash
+echo "$(date '+%Y-%m-%d %H:%M:%S') $(whoami) - completed server-update!" >> ./symfony-update.log
+echo "$(date '+%Y-%m-%d %H:%M:%S') $(whoami) - new git branch: $(git rev-parse --abbrev-ref HEAD 2>&1)" >> ./symfony-update.log
+echo "$(date '+%Y-%m-%d %H:%M:%S') $(whoami) - new git tag:    $(git describe --tags --exact-match 2>&1)" >> ./symfony-update.log
+echo "$(date '+%Y-%m-%d %H:%M:%S') $(whoami) - new git commit: $(head -n 1 ./.git/FETCH_HEAD | cut -c1-8)" >> ./symfony-update.log
+echo "" >> ./symfony-update.log
+```
+
 
 
 ## TO-DO
